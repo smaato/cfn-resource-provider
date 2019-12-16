@@ -1,0 +1,84 @@
+{
+    "typeName": "Smaato::IAM::OpenIDConnectProvider",
+    "description": "Create OpenID Connect (OIDC) identity provider.",
+    "sourceUrl": "https://github.com/smaato/cfn-resource-provider.git",
+    "properties": {
+        "Url": {
+            "description": "The URL of the OpenID Connect (OIDC) identity provider. The URL must begin with https:// and should correspond to the iss claim in the provider's OpenID Connect ID tokens.",
+            "type": "string",
+            "pattern": "^(https)://.*$",
+            "minLength": 1,
+            "maxLength": 255
+        },
+        "ClientIDList": {
+            "description": "A list of client IDs (also known as audiences).",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+            }
+        },
+        "ThumbprintList": {
+            "description": "A list of server certificate thumbprints for the OpenID Connect (OIDC) identity provider's server certificates.",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "minLength": 40,
+                "maxLength": 40
+            }
+        },
+        "Arn": {
+            "description": "The Amazon Resource Name (ARN) of the new IAM OpenID Connect provider that is created.",
+            "type": "string"
+        },
+        "Name": {
+            "description": "The identifier of new IAM OpenID Connect provider that is created. The name is the OpenID Connect URL without https://.",
+            "type": "string"
+        }
+    },
+    "additionalProperties": false,
+    "required": [
+        "Url",
+        "ClientIDList"
+    ],
+    "readOnlyProperties": [
+        "/properties/Name",
+        "/properties/Arn"
+    ],
+    "createOnlyProperties": [
+        "/properties/Url"
+    ],
+    "primaryIdentifier": [
+        "/properties/Name"
+    ],
+    "handlers": {
+        "create": {
+            "permissions": [
+                "iam:CreateOpenIDConnectProvider"
+            ]
+        },
+        "read": {
+            "permissions": [
+                "iam:GetOpenIDConnectProvider"
+            ]
+        },
+        "update": {
+            "permissions": [
+                "iam:AddClientIDToOpenIDConnectProvider",
+                "iam:RemoveClientIDFromOpenIDConnectProvider",
+                "iam:UpdateOpenIDConnectProviderThumbprint"
+            ]
+        },
+        "delete": {
+            "permissions": [
+                "iam:DeleteOpenIDConnectProvider"
+            ]
+        },
+        "list": {
+            "permissions": [
+                "iam:ListOpenIDConnectProviders"
+            ]
+        }
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "typeName": "Smaato::IAM::OpenIDConnectProvider",
+    "language": "go",
+    "runtime": "go1.x",
+    "entrypoint": "handler",
+    "testEntrypoint": "handler",
+    "settings": {
+        "importpath": "github.com/smaato/cfn-resource-provider/iam-openidconnectprovider"
+    }
+}
