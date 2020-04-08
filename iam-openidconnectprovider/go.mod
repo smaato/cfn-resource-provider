@@ -6,3 +6,5 @@ require (
 	github.com/aws/aws-sdk-go v1.26.2
 	github.com/pkg/errors v0.8.1
 )
+
+go 1.13
