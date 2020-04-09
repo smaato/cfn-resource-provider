@@ -8,16 +8,15 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/aws-cloudformation/cloudformation-cli-go-plugin/cfn/encoding"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
 // convert list of encoding.String to list of string
-func listEncodingToList(l []*encoding.String) []*string {
+func listEncodingToList(l []*string) []*string {
 	var r []*string
 	for _, s := range l {
-		r = append(r, s.Value())
+		r = append(r, s)
 	}
 	return r
 }
