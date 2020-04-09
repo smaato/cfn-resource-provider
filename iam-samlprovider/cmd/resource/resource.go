@@ -3,8 +3,8 @@ package resource
 import (
 	"fmt"
 
-	"github.com/aws-cloudformation/cloudformation-cli-go-plugin/cfn/encoding"
 	"github.com/aws-cloudformation/cloudformation-cli-go-plugin/cfn/handler"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/iam"
 )
@@ -25,8 +25,8 @@ func Create(req handler.Request, prevModel *Model, currentModel *Model) (handler
 	}
 
 	createSAMLReq := &iam.CreateSAMLProviderInput{
-		Name:                 currentModel.Name.Value(),
-		SAMLMetadataDocument: currentModel.SAMLMetadataDocument.Value(),
+		Name:                 currentModel.Name,
+		SAMLMetadataDocument: currentModel.SAMLMetadataDocument,
 	}
 
 	client := iam.New(req.Session)
@@ -50,7 +50,7 @@ func Create(req handler.Request, prevModel *Model, currentModel *Model) (handler
 func Read(req handler.Request, prevModel *Model, currentModel *Model) (handler.ProgressEvent, error) {
 
 	// retrive provider ARN
-	arn, err := getProviderArn(req.Session, currentModel.Name.Value())
+	arn, err := getProviderArn(req.Session, currentModel.Name)
 	if err != nil {
 		return handler.ProgressEvent{
 			OperationStatus: handler.Failed,
@@ -60,7 +60,7 @@ func Read(req handler.Request, prevModel *Model, currentModel *Model) (handler.P
 	}
 
 	// set read-only property
-	currentModel.Arn = encoding.NewString(*arn)
+	currentModel.Arn = aws.String(*arn)
 
 	return handler.ProgressEvent{
 		OperationStatus: handler.Success,
@@ -79,14 +79,14 @@ func Update(req handler.Request, prevModel *Model, currentModel *Model) (handler
 	}
 
 	// retrive provider ARN
-	arn, err := getProviderArn(req.Session, currentModel.Name.Value())
+	arn, err := getProviderArn(req.Session, currentModel.Name)
 	if err != nil {
 		return failedResponse, fmt.Errorf("error retriving SAML provider ARN: %v", err)
 	}
 
 	updateSAMLReq := &iam.UpdateSAMLProviderInput{
 		SAMLProviderArn:      arn,
-		SAMLMetadataDocument: currentModel.SAMLMetadataDocument.Value(),
+		SAMLMetadataDocument: currentModel.SAMLMetadataDocument,
 	}
 
 	client := iam.New(req.Session)
@@ -115,7 +115,7 @@ func Delete(req handler.Request, prevModel *Model, currentModel *Model) (handler
 	}
 
 	// retrive provider ARN
-	arn, err := getProviderArn(req.Session, currentModel.Name.Value())
+	arn, err := getProviderArn(req.Session, currentModel.Name)
 	if err != nil {
 		return failedResponse, fmt.Errorf("error retriving SAML provider ARN: %v", err)
 	}
