@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/aws-cloudformation/cloudformation-cli-go-plugin/cfn/encoding"
 	"github.com/aws-cloudformation/cloudformation-cli-go-plugin/cfn/handler"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/iam"
 )
@@ -20,11 +20,11 @@ func Create(req handler.Request, prevModel *Model, currentModel *Model) (handler
 		ResourceModel:   currentModel,
 	}
 
-	issuerUrl := currentModel.Url.Value()
+	issuerUrl := currentModel.Url
 
 	createOIDCReq := &iam.CreateOpenIDConnectProviderInput{
 		Url:          issuerUrl,
-		ClientIDList: listEncodingToList(currentModel.ClientIDList),
+		ClientIDList: listEncodingToList(aws.StringSlice(currentModel.ClientIDList)),
 	}
 
 	// get Thumbprint if not provided
@@ -35,11 +35,11 @@ func Create(req handler.Request, prevModel *Model, currentModel *Model) (handler
 		}
 		createOIDCReq.ThumbprintList = []*string{thumbprint}
 	} else {
-		createOIDCReq.ThumbprintList = listEncodingToList(currentModel.ThumbprintList)
+		createOIDCReq.ThumbprintList = listEncodingToList(aws.StringSlice(currentModel.ThumbprintList))
 	}
 
 	// set primary identifier (physical ID)
-	currentModel.Name = encoding.NewString(strings.TrimPrefix(*issuerUrl, "https://"))
+	currentModel.Name = aws.String(strings.TrimPrefix(*issuerUrl, "https://"))
 
 	response := handler.ProgressEvent{
 		OperationStatus: handler.Success,
@@ -68,7 +68,7 @@ func Create(req handler.Request, prevModel *Model, currentModel *Model) (handler
 func Read(req handler.Request, prevModel *Model, currentModel *Model) (handler.ProgressEvent, error) {
 
 	// retrive provider ARN
-	arn, err := getProviderArn(req.Session, currentModel.Name.Value())
+	arn, err := getProviderArn(req.Session, currentModel.Name)
 	if err != nil {
 		return handler.ProgressEvent{
 			OperationStatus: handler.Failed,
@@ -78,7 +78,7 @@ func Read(req handler.Request, prevModel *Model, currentModel *Model) (handler.P
 	}
 
 	// set read-only property
-	currentModel.Arn = encoding.NewString(*arn)
+	currentModel.Arn = aws.String(*arn)
 
 	return handler.ProgressEvent{
 		OperationStatus: handler.Success,
@@ -97,7 +97,7 @@ func Update(req handler.Request, prevModel *Model, currentModel *Model) (handler
 	}
 
 	// retrive provider ARN
-	arn, err := getProviderArn(req.Session, currentModel.Name.Value())
+	arn, err := getProviderArn(req.Session, currentModel.Name)
 	if err != nil {
 		return failedResponse, fmt.Errorf("error retriving OpenID connect provider ARN: %v", err)
 	}
@@ -109,7 +109,7 @@ func Update(req handler.Request, prevModel *Model, currentModel *Model) (handler
 	if !reflect.DeepEqual(prevModel.ThumbprintList, currentModel.ThumbprintList) {
 		updateThumbprintReq := &iam.UpdateOpenIDConnectProviderThumbprintInput{
 			OpenIDConnectProviderArn: arn,
-			ThumbprintList:           listEncodingToList(currentModel.ThumbprintList),
+			ThumbprintList:           listEncodingToList(aws.StringSlice(currentModel.ThumbprintList)),
 		}
 		_, err := client.UpdateOpenIDConnectProviderThumbprint(updateThumbprintReq)
 		if err != nil {
@@ -125,7 +125,7 @@ func Update(req handler.Request, prevModel *Model, currentModel *Model) (handler
 		for _, c := range prevModel.ClientIDList {
 			removeClientReq := &iam.RemoveClientIDFromOpenIDConnectProviderInput{
 				OpenIDConnectProviderArn: arn,
-				ClientID:                 c.Value(),
+				ClientID:                 aws.String(c),
 			}
 			_, err := client.RemoveClientIDFromOpenIDConnectProvider(removeClientReq)
 			if err != nil {
@@ -136,7 +136,7 @@ func Update(req handler.Request, prevModel *Model, currentModel *Model) (handler
 		for _, c := range currentModel.ClientIDList {
 			addClientReq := &iam.AddClientIDToOpenIDConnectProviderInput{
 				OpenIDConnectProviderArn: arn,
-				ClientID:                 c.Value(),
+				ClientID:                 aws.String(c),
 			}
 			_, err := client.AddClientIDToOpenIDConnectProvider(addClientReq)
 			if err != nil {
@@ -164,7 +164,7 @@ func Delete(req handler.Request, prevModel *Model, currentModel *Model) (handler
 	}
 
 	// retrive provider ARN
-	arn, err := getProviderArn(req.Session, currentModel.Name.Value())
+	arn, err := getProviderArn(req.Session, currentModel.Name)
 	if err != nil {
 		return failedResponse, fmt.Errorf("error retriving OpenID connect provider ARN: %v", err)
 	}

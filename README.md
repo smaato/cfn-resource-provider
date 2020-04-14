@@ -16,7 +16,8 @@ pip install cloudformation-cli cloudformation-cli-go-plugin
 It is recommended to install the previous packages in `virtualenv`. Then go to the desired resource directory and run:
 
 ```bash
-make
+make -f Makefile.custom
+
 AWS_PROFILE=... cfn submit -v --region us-east-1
 ```
 

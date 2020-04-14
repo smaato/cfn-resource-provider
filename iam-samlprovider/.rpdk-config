@@ -5,6 +5,8 @@
     "entrypoint": "handler",
     "testEntrypoint": "handler",
     "settings": {
-        "importpath": "github.com/smaato/cfn-resource-provider/iam-samlprovider"
+        "importpath": "github.com/smaato/cfn-resource-provider/iam-samlprovider",
+        "protocolVersion": "1.0",
+        "pluginVersion": "0.1.4"
     }
 }
