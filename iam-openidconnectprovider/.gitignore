@@ -5,8 +5,15 @@
 # our logs
 rpdk.log
 
-#compiled file
+# compiled file
 bin/
 
-#vender
+# vender
 vender/
+
+# IntelliJ
+.idea/
+
+# misc
+.venv
+makebuild

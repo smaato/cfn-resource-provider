@@ -1,4 +1,5 @@
 {
+    "artifact_type": "RESOURCE",
     "typeName": "Smaato::IAM::OpenIDConnectProvider",
     "language": "go",
     "runtime": "go1.x",
@@ -6,7 +7,7 @@
     "testEntrypoint": "handler",
     "settings": {
         "importpath": "github.com/smaato/cfn-resource-provider/iam-openidconnectprovider",
-        "protocolVersion": "1.0",
-        "pluginVersion": "0.1.4"
+        "protocolVersion": "2.0.0",
+        "pluginVersion": "2.0.4"
     }
 }
